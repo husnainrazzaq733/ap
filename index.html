@@ -116,6 +116,15 @@ header{background:linear-gradient(135deg,#1e0a3c,#0d1117);border-bottom:1px soli
   <div class="chat-wrap">
     <aside class="sidebar">
       <div>
+        <p class="sb-title">🔐 Groq API Key</p>
+        <div class="api-input-wrap">
+          <input type="password" id="apiKeyInput" placeholder="gsk_..." autocomplete="off"/>
+          <button class="eye" onclick="toggleEye()">👁</button>
+        </div>
+        <button class="save-btn" onclick="saveKey()">✓ Save Key</button>
+        <p class="api-hint">Free: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></p>
+      </div>
+      <div>
         <p class="sb-title">⚡ Quick Questions</p>
         <button class="quick-btn" onclick="askQuick('What is a Computer System? Explain CPU and RAM.')">💻 Computer & CPU</button>
         <button class="quick-btn" onclick="askQuick('Explain different types of computers.')">🖥️ Types of Computers</button>
@@ -150,6 +159,27 @@ header{background:linear-gradient(135deg,#1e0a3c,#0d1117);border-bottom:1px soli
 </div>
 
 <script>
+const DEFAULT_KEY = '';
+let apiKey = localStorage.getItem('groq_key') || DEFAULT_KEY;
+
+// Init
+if(document.getElementById('apiKeyInput'))
+  document.getElementById('apiKeyInput').value = apiKey;
+
+// API key
+function saveKey(){
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if(!k) return;
+  apiKey = k;
+  localStorage.setItem('groq_key', k);
+  document.getElementById('apiBadge').textContent = '✓ API Ready';
+  document.getElementById('apiBadge').className = 'ok';
+}
+function toggleEye(){
+  const i = document.getElementById('apiKeyInput');
+  i.type = i.type==='password'?'text':'password';
+}
+
 // Chat functionality follows
 
 // ===== CHAT =====
@@ -229,7 +259,7 @@ async function sendMessage(){
     const res=await fetch('/ask',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({question:q, type: chatType})
+      body:JSON.stringify({question:q, type: chatType, api_key:apiKey})
     });
     const data=await res.json();
     rmTyping();
